@@ -1,7 +1,7 @@
-##Task Manager API##
+Task Manager API
 A simple RESTful API built with Node.js, Express, and MongoDB (Mongoose) for managing tasks. This project demonstrates best practices in structuring an Express app, using async/await, custom error handling, and middleware.
 
-#Features#
+Features
 Create, read, update, and delete tasks (CRUD)
 MongoDB database integration using Mongoose
 Async error handling with custom middleware
