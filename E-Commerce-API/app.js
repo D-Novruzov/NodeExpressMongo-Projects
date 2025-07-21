@@ -7,14 +7,14 @@ const userRouter = require("./routes/usersRouter");
 dotenv.config();
 
 const port = process.env.PORT || 5000;
-
+app.use(express.json());
 // app.use("/", (req, res) => {
 //   res.send("salam aleykum");
 // });
 app.use("/api/v1/users", userRouter);
 
 app.use(errorHandler);
-4;
+
 const start = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);
