@@ -3,6 +3,7 @@ const catchAsync = require("./../utils/catchAsync");
 const jwt = require("jsonwebtoken");
 const AppError = require("./../errors/error");
 const bcrypt = require("bcryptjs");
+
 //Getting All users.
 exports.getAllUsers = catchAsync(async (req, res) => {
   const user = await User.find();
@@ -58,13 +59,13 @@ exports.signUp = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
-  if (user) {
-    res.status(201).json({
-      status: "success",
-      user,
-    });
+  if (!user) {
+    next(new AppError("signing up failed, please try again", 500));
   }
-  next(new AppError("signing up failed, please try again", 500));
+  res.status(201).json({
+    status: "success",
+    user,
+  });
 });
 exports.logIn = catchAsync(async (req, res, next) => {
   const signToken = (id) => {
@@ -81,7 +82,7 @@ exports.logIn = catchAsync(async (req, res, next) => {
 
   // 2. Find user by email and select password (as it's often `select: false` in schema)
   // `+password` forces Mongoose to include the password field in the query result
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email, active: true }).select("+password");
 
   // 3. Check if user exists AND password is correct
   // You need a method on your User model to compare hashed passwords
@@ -92,9 +93,46 @@ exports.logIn = catchAsync(async (req, res, next) => {
   }
 
   // 4. If everything is OK, send token to client
+  
   const token = signToken(user._id);
   res.status(200).json({
-    jwt,
+    token,
     user,
   });
 });
+//simple logout funnctions which sets the users property of active to false(it is set to true by default)
+exports.logOut = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+  if(!user) {
+    return next(new AppError('something went wrong please try again later', 500))
+  }
+  user.active = false;
+  res.status(200).json({
+    user
+  })
+})
+exports.updatePassword = catchAsync(async(req, res, next) => {
+  if(!req.body.email && !req.body.password) {
+    return next(new AppError('you should provide email and password'))
+  }
+  const {email, password, newPassword, newPasswordConfirmation } = req.body
+  const user = await User.findOne({email}).select('+password')
+
+  if(!user || !(await bcrypt.compare(password, user.password))) {
+    return next(new AppError('your password is not correct', 403))
+  }
+
+  if(newPassword !== newPasswordConfirmation ) {
+    return next(new AppError('password confirmation failed, try again', 400))
+  }
+
+  user.password = newPassword;
+  user.passwordConfirm = newPasswordConfirmation;
+
+  //this will trigger the pre save middleware and hash the password along with setting new password int hedatabse
+  await user.save()
+  res.status(200).json({
+    status: 'success',
+    message:'password successfully updated'
+  })
+})
