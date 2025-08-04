@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const errorHandler = require("./middleware/errorHandler");
 const userRouter = require("./routes/usersRouter");
+const authRouter = require('./routes/authenticationRoutes')
+const productsRouter = require('./routes/productRoutes')
 dotenv.config();
 
 const port = process.env.PORT || 5000;
@@ -12,6 +14,10 @@ app.use(express.json());
 //   res.send("salam aleykum");
 // });
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/products", productsRouter);
+
+
 
 app.use(errorHandler);
 

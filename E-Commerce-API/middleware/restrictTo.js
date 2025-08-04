@@ -11,3 +11,4 @@ const restrictTo = (role) => {
         return new AppError('This route is forbidden, only admin can allow', 403)
     }
 }
+module.exports = restrictTo

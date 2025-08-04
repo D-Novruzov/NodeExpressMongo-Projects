@@ -58,6 +58,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role
   });
   if (!user) {
     next(new AppError("signing up failed, please try again", 500));
