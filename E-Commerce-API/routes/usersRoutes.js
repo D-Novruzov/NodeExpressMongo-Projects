@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const usersController = require("./../controllers/usersController");
-const protect = require('./../middleware/protect')
+const usersController = require("../controllers/usersController.js");
+const protect = require('../middleware/protect.js')
 const restrictTo = require("../middleware/restrictTo.js")
 
 //routes for admin

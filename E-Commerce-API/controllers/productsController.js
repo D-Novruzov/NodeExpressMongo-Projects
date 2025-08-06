@@ -47,7 +47,6 @@ exports.getProduct = catchAsync(async (req, res, next) => {
 })
 exports.updateProduct = catchAsync(async (req, res, next) => {
 
-
     const product = await Product.findOneAndUpdate({_id: req.params.id},  req.body,  {new: true, runValidators: true})
     if(!product) return next(new AppError('there is no product with such id, enter the valid id to update the product'))
     res.status(200).json({

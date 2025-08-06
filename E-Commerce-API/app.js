@@ -3,9 +3,10 @@ const app = express();
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const errorHandler = require("./middleware/errorHandler");
-const userRouter = require("./routes/usersRouter");
+const userRouter = require("./routes/usersRoutes");
 const authRouter = require('./routes/authenticationRoutes')
 const productsRouter = require('./routes/productRoutes')
+const cartRouter = require('./routes/cartRoutes')
 dotenv.config();
 
 const port = process.env.PORT || 5000;
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/products", productsRouter);
+app.use("/api/v1/cart", cartRouter)
 
 
 
