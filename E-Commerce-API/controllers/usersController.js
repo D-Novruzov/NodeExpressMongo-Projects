@@ -76,24 +76,19 @@ exports.logIn = catchAsync(async (req, res, next) => {
   };
   const { email, password } = req.body;
 
-  // 1. Check if email and password exist in the request body
   if (!email || !password) {
     return next(new AppError("Please provide email and password!", 400)); // 400 Bad Request
   }
 
-  // 2. Find user by email and select password (as it's often `select: false` in schema)
-  // `+password` forces Mongoose to include the password field in the query result
+
   const user = await User.findOne({ email, active: true }).select("+password");
 
-  // 3. Check if user exists AND password is correct
-  // You need a method on your User model to compare hashed passwords
-  // Example: `await user.correctPassword(password, user.password)`
-  // This `correctPassword` method would use `bcrypt.compare()` internally.
+
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    return next(new AppError("Incorrect email or password!", 401)); // 401 Unauthorized
+    return next(new AppError("Incorrect email or password!", 401)); // 
   }
 
-  // 4. If everything is OK, send token to client
+
   
   const token = signToken(user._id);
   res.status(200).json({
@@ -101,7 +96,7 @@ exports.logIn = catchAsync(async (req, res, next) => {
     user,
   });
 });
-//simple logout funnctions which sets the users property of active to false(it is set to true by default)
+
 exports.logOut = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   if(!user) {
@@ -130,7 +125,7 @@ exports.updatePassword = catchAsync(async(req, res, next) => {
   user.password = newPassword;
   user.passwordConfirm = newPasswordConfirmation;
 
-  //this will trigger the pre save middleware and hash the password along with setting new password int hedatabse
+  //this will trigger the pre save middleware and hash the password along with setting new password in thedatabse
   await user.save()
   res.status(200).json({
     status: 'success',

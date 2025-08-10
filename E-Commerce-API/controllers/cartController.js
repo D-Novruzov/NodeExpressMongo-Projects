@@ -3,7 +3,7 @@ const User = require('../models/user')
 const Product = require('../models/product')
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../errors/error");
-const product = require('../models/product');
+
 
 
 exports.getUserCart = catchAsync(async (req, res, next) => {

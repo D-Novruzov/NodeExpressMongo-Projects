@@ -25,7 +25,7 @@ exports.addProduct = catchAsync(async (req, res, next) => {
         price: req.body.price,
         category: req.body.category,
         stock: req.body.stock,
-        image: req.body.image
+        
 
     })
     if(!product) return next( new AppError("something went wrong please try again later!"))
