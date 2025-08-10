@@ -11,13 +11,18 @@ const productsRouter = require('./routes/productRoutes')
 const cartRouter = require('./routes/cartRoutes')
 const orderRouter = require('./routes/orderRoutes')
 const ratingRouter = require('./routes/ratingRouter')
-
+const aggregations = require('./models/aggregations')
 dotenv.config();
 
 const port = process.env.PORT || 5000;
 
 
 app.use(express.json());
+
+//Aggregations
+app.use("/api/v1/most-expensive-by-category", aggregations.getMostExpensiveProductByCategory)
+
+app.use("/api/v1/avgRating-top-three", aggregations.getAverageRatingOfTopThreeByCategory)
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
