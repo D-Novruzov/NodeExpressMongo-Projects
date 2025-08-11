@@ -74,10 +74,13 @@ exports.getOrderById = catchAsync(async (req, res, next) => {
 exports.updateOrderStatus = catchAsync(async (req, res, next) => {
   const status = req.body.status
   if(!status) return next(new AppError('please enter valid status', 400))
+
   const availableStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
   const order = await Order.findById(req.params.id)
-  if (!order) return next(new AppError('there is no order', 404)); // ❌ no return
-if (availableStatuses.includes(status)) {
+
+  if (!order) return next(new AppError('there is no order', 404)); 
+  
+  if (availableStatuses.includes(status)) {
   order.status = status;
   await order.save();
 } else {

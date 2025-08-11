@@ -5,45 +5,61 @@ const handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleDuplicateFieldsDB = (err) => {
+  const value = err.message.match(/(["'])(?:(?=(\\?))\2.)*?\1/);
+  const message = `Duplicate field error: ${value ? value[0] : ''}, please try another value`
+  return new AppError(message, 400);
+}
+const handleJWTError = () => {
+  return new AppError('Invalid token, please log in', 401)
+}
+const handleJWTExpiredError = () => {
+  return new AppError("Your token has expired! Please log in again.", 401)
+}
 const errorHandler = (err, req, res, next) => {
-  // Create a mutable copy of the error object
-  // It's important to create a proper copy that includes non-enumerable properties like 'name', 'message', 'stack'
-  let error = {
-    ...err,
-    name: err.name,
-    message: err.message,
-    stack: err.stack,
-  };
 
-  // Handle specific operational errors that need transformation
+  let error = {...err};
+  error.name =  err.name;
+  error.message = err.message;
+  error.stack = err.stack;
+
+
   if (error.name === "CastError") {
-    error = handleCastErrorDB(error); // Transform the Mongoose CastError into your AppError
+    error = handleCastErrorDB(error); 
   }
+  if(error.code === 11000) {
+    error = handleDuplicateFieldsDB(error)
+  }
+  if (error.name === 'JsonWebTokenError') {
+  error = handleJWTError();
+}
+  if (error.name === 'TokenExpiredError') {
+  error = handleJWTExpiredError();
+}
 
-  // Set default status code and status if they haven't been set by an AppError
+
   error.statusCode = error.statusCode || 500;
   error.status = error.status || "error";
 
-  // Send the final error response based on environment
+
   if (process.env.NODE_ENV === "development") {
     res.status(error.statusCode).json({
       status: error.status,
-      error: error, // Send the transformed/original error object
+      error: error, 
       message: error.message,
-      stack: error.stack, // Stack trace is useful for debugging
+      stack: error.stack, 
     });
   } else {
-    // In production, only send operational errors' details to the client
-    // For programming errors, send a generic message to prevent leaking sensitive info.
+
     if (error.isOperational) {
-      // Assuming your AppError sets isOperational = true
+     
       res.status(error.statusCode).json({
         status: error.status,
         message: error.message,
       });
     } else {
-      // For programming errors or unknown errors, log it internally but send a generic message
-      console.error("UNEXPECTED ERROR 💥", err); // Log the full original error internally
+
+      console.error("UNEXPECTED ERROR 💥", err); 
       res.status(500).json({
         status: "error",
         message: "Something went very wrong! Please try again later.",
