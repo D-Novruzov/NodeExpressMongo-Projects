@@ -1,7 +1,18 @@
 # **E-Commerce-API**
 A robust and scalable back-end solution for a modern e-commerce application. This API handles everything from user authentication and product management to order processing and data aggregation. It is built with a focus on security, performance, and maintainability.
-## **🚀 Key Features**
-This API provides a full suite of functionalities necessary for an e-commerce platform, including:
+
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Technologies Used](#technologies-used)
+- [Installation and Setup](#installation-and-setup)
+- [API Endpoints](#api-endpoints)
+- [Robust Security and Error Handling](#robust-security-and-error-handling)
+- [Scheduled Tasks (Cron Jobs)](#scheduled-tasks-cron-jobs)
+- [Advanced Querying and Filtering](#advanced-querying-and-filtering)
+
+## **Key Features**
+This API provides a full suite of features essential for an e-commerce platform, including:
 
 - **User & Authentication System:** Secure user registration, login, and profile management with token-based authentication.
 - **Product Management:** A comprehensive catalog system with CRUD operations for products.
@@ -14,21 +25,24 @@ This API provides a full suite of functionalities necessary for an e-commerce pl
   - Total stock count for each product category.
   - Highest rated product by category.
 - **Robust Security:** Implemented security measures to protect against common web vulnerabilities.
-- **Dynamic Querying:** All read endpoints support advanced querying features like filtering, sorting, and pagination.
-## **🛠️ Technologies Used**
+
+## **Technologies Used**
 The E-Commerce-API is built on a modern Node.js stack.
 
 - **Node.js**: The server-side runtime environment.
 - **Express**: The web framework for building the API.
 - **MongoDB**: A NoSQL database for flexible data storage.
 - **Mongoose**: An object data modeling (ODM) library for MongoDB.
+- **JWT**: Robust authentication and authorization.
 - **Stripe**: The payment processing platform.
+- **Node-cron**: For scheduled tasks.
 - **Helmet**: Secures the app by setting various HTTP headers.
 - **CORS**: Middleware for enabling Cross-Origin Resource Sharing.
 - **express-rate-limit**: A rate-limiting middleware to prevent abuse.
+- **express-validator**: A validator for each route.
 - **mongo-sanitize**: A utility to prevent NoSQL injection attacks.
 - **dotenv**: Manages environment variables.
-## **⚙️ Installation and Setup**
+## **Installation and Setup**
 Follow these steps to get a local copy of the project up and running.
 ### **Prerequisites**
 - **Node.js**: Ensure you have Node.js installed.
@@ -39,10 +53,12 @@ cd E-Commerce-API
 ### **2. Configure Environment Variables**
 Create a .env file in the root directory and add the following variables. Replace the placeholder values with your own.
 
-PORT=5000
-MONGO\_URI=mongodb://localhost:27017/ecommercedb
-STRIPE\_SECRET\_KEY=sk\_test\_\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
-WEBHOOK\_SECRET=whsec\_\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+PORT=3000
+MONGO_URI=YOUR MONGO URI
+STRIPE_SECRET_KEY=sk\_test\_\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+WEBHOOK_SECRET=whsec\_\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+JWT_SECRET=YOUR SECRET
+NODE_ENV=development
 ### **3. Install Dependencies**
 Install all the required packages using npm.
 
@@ -56,7 +72,7 @@ Once everything is configured, start the server.
 
 npm start
 
-The API will be live and running on http://localhost:5000.
+The API will be live and running on http://localhost:3000.
 ## **📌 API Endpoints**
 The API is versioned with /api/v1 and provides the following main endpoints.
 ### **Authentication**
@@ -64,8 +80,6 @@ The API is versioned with /api/v1 and provides the following main endpoints.
 - POST /api/v1/auth/logIn - Log in and receive an authentication token.
 - POST /api/v1/auth/logOut - Log out a user.
 - POST /api/v1/auth/updatePassword - Update a user's password.
-- POST /api/v1/auth/forgot-password - Request a password reset.
-- PATCH /api/v1/auth/reset-password/:token - Reset the password with a valid token.
 ### **Users (Admin Only)**
 - GET /api/v1/users - Retrieve a list of all users.
 - GET /api/v1/users/:id - Retrieve a single user by ID.
@@ -98,24 +112,24 @@ The API is versioned with /api/v1 and provides the following main endpoints.
 - GET /api/v1/avgRating-top-three - Get the average rating for the three most expensive products in each category.
 - GET /api/v1/totalStock-by-category - Get the total stock count for each category.
 - GET /api/v1/highestRating-by-category - Get the product with the highest average rating in each category.
-## **🔒 Robust Security and Error Handling**
-This API is built with security and consistent error handling in mind. The application uses several key middlewares to protect against common attacks and provides clear, helpful error messages.
+## **Robust Security and Error Handling**
+The application uses several key middlewares to protect against common attacks and provides clear, helpful error messages.
 
 - **Global Error Handling:** A centralized error handler catches and formats all application errors. It distinguishes between operational errors (expected issues like a user submitting an invalid ID) and unexpected errors (bugs in the code) to prevent sensitive information from being leaked in production.
 - **Error Types Handled:** The API explicitly handles the following error scenarios:
-  - **Invalid IDs (**CastError**)**: Returns a clear message when a user provides an incorrectly formatted ID in the URL.
-  - **Duplicate Fields**: Catches and reports duplicate key errors, such as when a user attempts to sign up with an email that is already in use.
-  - **Invalid/Expired JWT**: Securely handles authentication failures by returning a 401 Unauthorized error for invalid or expired JSON Web Tokens.
+  - **Invalid IDs (**CastError**)**
+  - **Duplicate Fields**
+  - **Invalid/Expired JWT**
 - **Environment-Specific Responses:** The API provides verbose error information (stack traces, full error objects) during development to aid debugging, while providing simple, generic error messages in production to maintain security.
-## **⏱️ Scheduled Tasks (Cron Jobs)**
+## **Scheduled Tasks (Cron Jobs)**
 The API uses scheduled tasks to perform regular maintenance and analytics. These jobs are configured to run automatically at specific intervals.
 
 - **Monthly Sales Report**: Runs on the first day of every month to calculate the total sales from the previous month.
 - **Most Popular Category**: Runs on the first day of every month to determine the most popular product category based on quantity sold.
-- **Average Rating of Top Products**: Runs on the first day of every month to calculate and log the average rating of the top three most expensive products in each category.
+- **Average Rating of Top Three Products By Category**: Runs on the first day of every month to calculate and log the average rating of the top three most expensive products in each category.
 - **Monthly Order Count**: Runs every six months to calculate and log the number of delivered and paid orders.
-## **🔍 Advanced Querying and Filtering**
-All API endpoints that return a list of resources (e.g., GET /api/v1/products) support powerful query parameters for filtering, sorting, and pagination.
+## **Advanced Querying and Filtering**
+API endpoint GET /api/v1/products supports powerful query parameters for filtering, sorting, and pagination.
 
 Here's how you can use them:
 
