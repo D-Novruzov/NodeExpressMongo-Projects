@@ -1,28 +1,33 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+
 const userSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: [true, "A user must have a name"],
+  },
   email: {
     type: String,
     unique: true,
-    lowecase: true,
-    required: [true, "Please enter your email"],
+    lowercase: true,
+    required: [true, "Please provide your email"],
+    validate: [validator.isEmail, "Please provide a valid email"],
   },
   password: {
     type: String,
     minlength: 8,
-    required: [true, "please enter a valid password"],
-    select: false
+    required: [true, "Please provide a password"],
+    select: false,
   },
   passwordConfirm: {
     type: String,
-    required: true,
+    required: [true, "Please confirm your password"],
     validate: {
       validator: function (el) {
         return el === this.password;
       },
-      message: "passwords are not the same",
+      message: "Passwords are not the same!",
     },
   },
   role: {
@@ -39,15 +44,16 @@ const userSchema = new mongoose.Schema({
   passwordResetExpires: Date,
 });
 
-
-//document pre save middleware to encrypt the password and delete the passwordConfirm from the database, for the password not to be persisted
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
+
+  // Hash the password with a cost of 12
   this.password = await bcrypt.hash(this.password, 12);
 
-
-  this.passwordConfirm = undefined; 
+  // Delete passwordConfirm field
+  this.passwordConfirm = undefined;
 
   next();
 });
+
 module.exports = mongoose.model("User", userSchema);

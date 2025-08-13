@@ -1,7 +1,12 @@
 const {body, param} = require('express-validator')
 
 
-exports.validateAddingProdcuts = [
+const productIdValidator = param('id').isMongoId().withMessage('Enter the valid ID')
+
+
+  
+
+exports.validateAddingProducts = [
     body("name").notEmpty().isString().withMessage('Product name is required'),
     body("description").notEmpty().isString().isLength({min: 20}).withMessage("Product should have a description"),
     body("price").notEmpty().isInt({min: 1}).withMessage('Minimum price should be 1$'),
@@ -17,11 +22,11 @@ exports.validateAddingProdcuts = [
 ]
 
 exports.validateGettingProductById = [
-    param('id').isMongoId().withMessage('Enter the valid ID')
+  productIdValidator
 ]
 
 exports.validateUpdatingProductById = [
-    param('id').isMongoId().withMessage('Enter the valid ID'),
+    productIdValidator,
     body("name").optional(),
     body("description").optional(),
     body("price").optional().isInt({min: 1}).withMessage('Minimum price should be 1$'),
@@ -38,6 +43,6 @@ exports.validateUpdatingProductById = [
 
 
 exports.validateDeletingProductById =[ 
-        param('id').isMongoId().withMessage('Enter the valid ID')
+   productIdValidator
 
 ]

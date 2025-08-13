@@ -6,7 +6,7 @@ exports.validateCreateOrder= [
     body("shippingAddress.city").notEmpty().withMessage('City is required'),
     body("shippingAddress.postalCode").notEmpty().withMessage('Postal code is required'),
     body("shippingAddress.country").notEmpty().withMessage('Country is required'),
-    body("shippingAddress.paymentMethod").notEmpty().withMessage('Payment Method is required'),
+    body("paymentMethod").notEmpty().withMessage('Payment Method is required'),
     body("note").optional().isString().withMessage('Note must be a string')
 ]
 

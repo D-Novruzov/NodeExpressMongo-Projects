@@ -1,7 +1,6 @@
 const { body, param} = require('express-validator');
 
 
-
 exports.validateGetProductRating = [
     param('productId').isMongoId().withMessage('Product rating should be valid')
 ]

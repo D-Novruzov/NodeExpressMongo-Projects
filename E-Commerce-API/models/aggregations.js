@@ -10,96 +10,93 @@ exports.getTotalStockForEachCategory = catchAsync(async (req, res, next) => {
     {
       $group: {
         _id: "$category",
-        totalStock: {
-          $sum: "$stock",
-        },
+        totalStock: { $sum: "$stock" },
       },
     },
   ]);
-  if (!data)
+
+  if (!data) {
     return next(
       new AppError("Something went wrong please try again later", 404)
     );
+  }
+
   res.status(200).json({
     message: "success",
     data,
   });
 });
 
-exports.getMostExpensiveProductByCategory = catchAsync(
-  async (req, res, next) => {
-    const data = await Product.aggregate([
-      {
-        $sort: { price: -1 },
+exports.getMostExpensiveProductByCategory = catchAsync(async (req, res, next) => {
+  const data = await Product.aggregate([
+    { $sort: { price: -1 } },
+    {
+      $group: {
+        _id: "$category",
+        product: { $first: "$name" },
+        price: { $first: "$price" },
       },
-      {
-        $group: {
-          _id: "$category",
-          product: { $first: "$name" },
-          price: { $first: "$price" },
-        },
-      },
-    ]);
-    if (!data)
-      return next(
-        new AppError("Something went wrong please try again later", 404)
-      );
-    res.status(200).json({
-      message: "success",
-      data,
-    });
+    },
+  ]);
+
+  if (!data) {
+    return next(
+      new AppError("Something went wrong please try again later", 404)
+    );
   }
-);
 
-exports.getAverageRatingOfTopThreeByCategory = catchAsync(
-  async (req, res, next) => {
-    const data = await Product.aggregate([
-      {
-        $lookup: {
-          from: "ratings",
-          localField: "_id",
-          foreignField: "product",
-          as: "ratings",
-        },
-      },
+  res.status(200).json({
+    message: "success",
+    data,
+  });
+});
 
-      {
-        $addFields: {
-          avgRating: { $avg: "$ratings.rating" },
-        },
+exports.getAverageRatingOfTopThreeByCategory = catchAsync(async (req, res, next) => {
+  const data = await Product.aggregate([
+    {
+      $lookup: {
+        from: "ratings",
+        localField: "_id",
+        foreignField: "product",
+        as: "ratings",
       },
-      {
-        $sort: { price: -1 },
+    },
+    {
+      $addFields: {
+        avgRating: { $avg: "$ratings.rating" },
       },
-      {
-        $group: {
-          _id: "$category",
-          topProducts: {
-            $push: {
-              name: "$name",
-              price: "$price",
-              avgRating: "$avgRating",
-            },
+    },
+    { $sort: { price: -1 } },
+    {
+      $group: {
+        _id: "$category",
+        topProducts: {
+          $push: {
+            name: "$name",
+            price: "$price",
+            avgRating: "$avgRating",
           },
         },
       },
-
-      {
-        $project: {
-          topProducts: { $slice: ["$topProducts", 3] },
-        },
+    },
+    {
+      $project: {
+        topProducts: { $slice: ["$topProducts", 3] },
       },
-    ]);
-    if (!data)
-      return next(
-        new AppError("Something wnet wrong please try again later", 404)
-      );
-    res.status(200).json({
-      message: "success",
-      data,
-    });
+    },
+  ]);
+
+  if (!data) {
+    return next(
+      new AppError("Something wnet wrong please try again later", 404)
+    );
   }
-);
+
+  res.status(200).json({
+    message: "success",
+    data,
+  });
+});
 
 exports.getHighestRatingByCategory = catchAsync(async (req, res, next) => {
   const data = await Product.aggregate([
@@ -111,38 +108,35 @@ exports.getHighestRatingByCategory = catchAsync(async (req, res, next) => {
         as: "ratings",
       },
     },
-
-      {
-        $addFields: {
-          avgRating: { $avg: "$ratings.rating" },
-        },
-      },
-
     {
-      $sort: { avgRating: -1 },
+      $addFields: {
+        avgRating: { $avg: "$ratings.rating" },
+      },
     },
-
+    { $sort: { avgRating: -1 } },
     {
       $group: {
         _id: "$category",
-        highestRatedProduct: {$first: "$$ROOT"},
+        highestRatedProduct: { $first: "$$ROOT" },
       },
     },
     {
       $project: {
         _id: 0,
         category: "$_id",
-        product: "$highestRatedProduct"
-      }
-    }
+        product: "$highestRatedProduct",
+      },
+    },
   ]);
-        if (!data)
-      return next(
-        new AppError("Something wnet wrong please try again later", 404)
-      );
-    res.status(200).json({
-      message: "success",
-      data,
-    });
-  
+
+  if (!data) {
+    return next(
+      new AppError("Something wnet wrong please try again later", 404)
+    );
+  }
+
+  res.status(200).json({
+    message: "success",
+    data,
+  });
 });

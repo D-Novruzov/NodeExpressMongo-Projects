@@ -9,7 +9,7 @@ const productValidator = require('../validators/productValidator.js')
 router
   .route("/")
   .get(protect, productsController.getAllProducts)
-  .post(protect, restrictTo("admin"), ...productValidator.validateAddingProdcuts,validate, productsController.addProduct);
+  .post(protect, restrictTo("admin"), ...productValidator.validateAddingProducts,validate, productsController.addProduct);
 
 router
   .route("/:id")
